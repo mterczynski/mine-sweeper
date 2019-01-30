@@ -1,11 +1,12 @@
 import { css, StyleSheet } from "aphrodite";
 import React, { Component } from "react";
 import { THEME } from "../constants/theme";
+import { GameState } from "../enums/gameState";
 import { TileType } from "../enums/tileType";
 import { Tile } from "./Tile";
 
 type BoardState = {
-  isGameStarted: boolean;
+  gameState: GameState;
   board: any[][];
 };
 
@@ -14,7 +15,7 @@ export class Board extends Component<any, BoardState> {
     super(props);
 
     this.state = {
-      isGameStarted: false,
+      gameState: GameState.unstarted,
       board: this.getEmptyBoard(this.rowCount, this.columnCount)
     };
   }
@@ -24,15 +25,65 @@ export class Board extends Component<any, BoardState> {
   private readonly columnCount = 24;
 
   onTileClick = (rowIndex: number, columnIndex: number) => {
-    if (!this.state.isGameStarted) {
+    if (this.state.gameState === GameState.unstarted) {
       this.fillBoard(rowIndex, columnIndex);
       this.setState({
-        isGameStarted: true
+        gameState: GameState.started
       });
     }
 
-    // todo -> uncover tiles or explode bomb
+    if (this.state.gameState === GameState.started) {
+      if (this.state.board[rowIndex][columnIndex].hasBomb) {
+        this.gameOver();
+      } else {
+        this.uncoverTiles(rowIndex, columnIndex);
+      }
+    }
   };
+
+  uncoverTiles(clickedRowIndex: number, clickedColumnIndex: number) {
+    // todo
+  }
+
+  updateAdjacentBombsCount(board: any[][]) {
+    board = board.map((row, rowIndex) =>
+      row.map((tile, columnIndex) => {
+        let neighborPositionOffsets = [
+          [-1, -1],
+          [-1, 0],
+          [-1, 1],
+          [0, -1],
+          [0, 1],
+          [1, -1],
+          [1, 0],
+          [1, 1]
+        ];
+
+        let adjacentBombs = 0;
+
+        neighborPositionOffsets.forEach(neighbourPositionOffset => {
+          try {
+            let hasBomb =
+              board[rowIndex + neighbourPositionOffset[0]][
+                columnIndex + neighbourPositionOffset[1]
+              ].props.hasBomb;
+            adjacentBombs += hasBomb;
+          } catch {}
+        });
+
+        return { ...tile, props: { ...tile.props, adjacentBombs } };
+      })
+    );
+
+    return board;
+  }
+
+  gameOver() {
+    this.setState({
+      gameState: GameState.failed
+    });
+    alert("Game Over");
+  }
 
   flagTile = (rowIndex: number, columnIndex: number) => {
     if (this.state.board[rowIndex][columnIndex].type === TileType.unmarked) {
@@ -48,7 +99,7 @@ export class Board extends Component<any, BoardState> {
   getEmptyBoard(rows: number, columns: number) {
     return [...Array(rows)]
       .map(() => [...Array(columns)])
-      .map(row =>
+      .map((row, rowIndex) =>
         row.map((_, columnIndex) => (
           <Tile
             type={TileType.unmarked}
@@ -57,6 +108,8 @@ export class Board extends Component<any, BoardState> {
             key={columnIndex}
             flagTile={this.flagTile}
             onTileClick={this.onTileClick}
+            rowIndex={rowIndex}
+            columnIndex={columnIndex}
           />
         ))
       );
@@ -74,18 +127,24 @@ export class Board extends Component<any, BoardState> {
         nextColumnIndex === clickedColumnIndex &&
         clickedRowIndex &&
         nextRowIndex;
-      if (
-        !board[nextRowIndex][nextColumnIndex].hasBomb &&
-        !isNewTileSameAsClickedTile
-      ) {
-        board[nextRowIndex][nextColumnIndex].hasBomb = true;
+      let newField = board[nextRowIndex][nextColumnIndex];
+      if (!newField.hasBomb && !isNewTileSameAsClickedTile) {
+        newField = {
+          ...newField,
+          props: {
+            ...newField.props,
+            hasBomb: true
+          }
+        };
+
+        board[nextRowIndex][nextColumnIndex] = newField;
         unplacedBombsLeft--;
       }
     }
 
-    this.setState({
-      board
-    });
+    board = this.updateAdjacentBombsCount(board);
+
+    this.setState({ board });
   }
 
   render() {
