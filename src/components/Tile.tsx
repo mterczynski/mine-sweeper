@@ -1,10 +1,23 @@
 import { css, StyleSheet } from "aphrodite";
 import React, { Component } from "react";
 import { THEME } from "../constants/theme";
+import { TileType } from "../enums/tileType";
 
-export class Tile extends Component {
+type TileProps = {
+  type: TileType;
+  hasBomb: boolean;
+  adjacentBombs: number;
+};
+export class Tile extends Component<TileProps> {
   render() {
-    return <div className={css(styles.tile, styles.uncoveredTile)}>1</div>;
+    let body: any = "";
+    if (this.props.type === TileType.flagged) {
+      body = <img src="assets/flag.png" alt="" />;
+    } else if (this.props.type === TileType.exposed) {
+      body = this.props.adjacentBombs || "";
+    }
+
+    return <div className={css(styles.tile, styles.uncoveredTile)}>{body}</div>;
   }
 }
 
