@@ -3,12 +3,21 @@ import React, { Component } from "react";
 import { THEME } from "../constants/theme";
 import { TileType } from "../enums/tileType";
 
-type TileProps = {
+export type TileProps = {
   type: TileType;
   hasBomb: boolean;
-  adjacentBombs: number;
+  adjacentBombs?: number;
+
+  // Callbacks:
+  flagTile: any;
+  onTileClick: any;
 };
 export class Tile extends Component<TileProps> {
+  onRightMouseButtonClick = () => {
+    this.props.flagTile();
+    return false;
+  };
+
   render() {
     let body: any = "";
     if (this.props.type === TileType.flagged) {
@@ -17,7 +26,15 @@ export class Tile extends Component<TileProps> {
       body = this.props.adjacentBombs || "";
     }
 
-    return <div className={css(styles.tile, styles.uncoveredTile)}>{body}</div>;
+    return (
+      <div
+        className={css(styles.tile, styles.uncoveredTile)}
+        onContextMenu={this.onRightMouseButtonClick}
+        onClick={this.props.onTileClick}
+      >
+        {body}
+      </div>
+    );
   }
 }
 
