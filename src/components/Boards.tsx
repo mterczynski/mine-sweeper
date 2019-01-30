@@ -4,14 +4,17 @@ import { THEME } from "../constants/theme";
 import { Tile } from "./Tile";
 
 export class Board extends Component {
-  size = 20;
+  rows = 20;
+  columns = 30;
+
+  board = [...Array(this.rows)].map(() => Array(this.columns));
 
   render() {
     return (
       <div className={css(styles.board)}>
-        {[...Array(this.size)].map((_, rowIndex) => (
+        {this.board.map((row, rowIndex) => (
           <div className={css(styles.row)} key={rowIndex}>
-            {[...Array(this.size)].map((_, columnIndex) => (
+            {row.map((_, columnIndex) => (
               <Tile key={columnIndex} />
             ))}
           </div>
