@@ -1,5 +1,5 @@
 export enum TileType {
-  flagged,
-  exposed,
-  unmarked
+  flagged = "flagged",
+  exposed = "exposed",
+  unmarked = "unmarked"
 }
