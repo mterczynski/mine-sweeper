@@ -15,9 +15,9 @@ export type TileProps = {
   onTileClick: any;
 };
 export class Tile extends Component<TileProps> {
-  onRightMouseButtonClick = () => {
-    this.props.flagTile();
-    return false;
+  onRightMouseButtonClick = (event: any) => {
+    event.preventDefault();
+    this.props.flagTile(this.props.rowIndex, this.props.columnIndex);
   };
 
   render() {

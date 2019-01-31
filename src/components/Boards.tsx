@@ -177,12 +177,24 @@ export class Board extends Component<any, BoardState> {
   }
 
   flagTile = (rowIndex: number, columnIndex: number) => {
-    if (this.state.board[rowIndex][columnIndex].type === TileType.unmarked) {
+    if (
+      this.state.gameState === GameState.started &&
+      this.state.board[rowIndex][columnIndex].props.type !== TileType.exposed
+    ) {
       let newBoard = [...this.state.board];
-      newBoard[rowIndex][columnIndex].type = TileType.flagged;
+      let tile = newBoard[rowIndex][columnIndex];
+      let newTileType = TileType.flagged;
+      if (tile.props.type === TileType.flagged) {
+        newTileType = TileType.unmarked;
+      }
+
+      newBoard[rowIndex][columnIndex] = {
+        ...tile,
+        props: { ...tile.props, type: newTileType }
+      };
 
       this.setState({
-        board: this.state.board
+        board: newBoard
       });
     }
   };
