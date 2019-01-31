@@ -1,5 +1,6 @@
 import { css, StyleSheet } from "aphrodite";
 import React, { Component } from "react";
+import Popup from "react-popup";
 import { NEIGHBOUR_POSITION_OFFSETS } from "../constants/neighbourPositionOffsets";
 import { THEME } from "../constants/theme";
 import { GameState } from "../enums/gameState";
@@ -144,7 +145,7 @@ export class Board extends Component<any, BoardState> {
           }
         }))
       );
-      alert("You won!"); // todo - change to custom message
+      Popup.alert("You won!");
     }
     this.setState({
       board: boardCopy
@@ -172,23 +173,21 @@ export class Board extends Component<any, BoardState> {
   }
 
   gameOver() {
-    this.setState(
-      {
-        gameState: GameState.failed,
-        board: this.state.board.map(row =>
-          row.map(tile => {
-            if (tile.props.hasBomb) {
-              return {
-                ...tile,
-                props: { ...tile.props, type: TileType.exposed }
-              };
-            }
-            return tile;
-          })
-        )
-      },
-      () => setTimeout(() => alert("Game Over"), 100) // todo - change alert to custom message component
-    );
+    this.setState({
+      gameState: GameState.failed,
+      board: this.state.board.map(row =>
+        row.map(tile => {
+          if (tile.props.hasBomb) {
+            return {
+              ...tile,
+              props: { ...tile.props, type: TileType.exposed }
+            };
+          }
+          return tile;
+        })
+      )
+    });
+    Popup.alert("Game over!");
   }
 
   flagTile = (rowIndex: number, columnIndex: number) => {
