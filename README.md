@@ -1,6 +1,6 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-<img src="https://github.com/mterczynski/mine-swepper/blob/master/assets/preview.png">
+<img src="https://github.com/mterczynski/mine-sweeper/blob/master/assets/preview.png">
 
 ## Available Scripts
 
