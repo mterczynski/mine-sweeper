@@ -21,9 +21,17 @@ export class Board extends Component<any, BoardState> {
     };
   }
 
-  private readonly initialBombsCount = 99;
-  private readonly rowCount = 20;
-  private readonly columnCount = 24;
+  // private readonly initialBombsCount = 99;
+  // private readonly rowCount = 20;
+  // private readonly columnCount = 24;
+
+  // private readonly initialBombsCount = 20;
+  // private readonly rowCount = 10;
+  // private readonly columnCount = 12;
+
+  private readonly initialBombsCount = 4;
+  private readonly rowCount = 6;
+  private readonly columnCount = 6;
 
   onTileClick = (rowIndex: number, columnIndex: number) => {
     if (this.state.gameState === GameState.unstarted) {
@@ -39,6 +47,14 @@ export class Board extends Component<any, BoardState> {
     }
   };
 
+  checkForWin(board: any[][]) {
+    return board.every(row =>
+      row.every(
+        tile => tile.props.type === TileType.exposed || tile.props.hasBomb
+      )
+    );
+  }
+
   uncoverTiles(
     clickedRowIndex: number,
     clickedColumnIndex: number,
@@ -46,7 +62,7 @@ export class Board extends Component<any, BoardState> {
   ) {
     const possiblePositionsToExpose = new Set<string>();
     const checkedPositions = new Set<string>();
-    const boardCopy = [...board];
+    let boardCopy = [...board];
 
     possiblePositionsToExpose.add(clickedRowIndex + ";" + clickedColumnIndex);
 
@@ -109,6 +125,21 @@ export class Board extends Component<any, BoardState> {
       possiblePositionsToExpose.delete([...possiblePositionsToExpose][0]);
     }
 
+    if (this.checkForWin(boardCopy)) {
+      boardCopy = boardCopy.map(row =>
+        row.map(tile => ({
+          ...tile,
+          props: {
+            ...tile.props,
+            type:
+              tile.props.type === TileType.flagged
+                ? TileType.flagged
+                : TileType.exposed
+          }
+        }))
+      );
+      alert("You won!"); // todo - change to custom message
+    }
     this.setState({
       board: boardCopy
     });
