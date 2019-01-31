@@ -43,7 +43,6 @@ export class Board extends Component<any, BoardState> {
     clickedColumnIndex: number,
     board: any[][] = this.state.board
   ) {
-    // todo
     const possiblePositionsToExpose = new Set<string>();
     const checkedPositions = new Set<string>();
     const boardCopy = [...board];
