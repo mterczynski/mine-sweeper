@@ -267,7 +267,7 @@ export class Board extends Component<any, BoardState> {
 
   render() {
     return (
-      <div>
+      <div className={css(styles.boardWrapper)}>
         <button
           className={css(styles.restartGameButton)}
           onClick={this.restartGame}
@@ -289,9 +289,16 @@ export class Board extends Component<any, BoardState> {
 }
 
 const styles = StyleSheet.create({
+  boardWrapper: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center"
+  },
+
   restartGameButton: {
-    height: "20px",
-    width: "40px",
+    "margin-bottom": "20px",
+    height: "30px",
+    width: "60px",
     background: `red`,
     color: "white",
     "font-family": "Impact"
