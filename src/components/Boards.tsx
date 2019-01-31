@@ -1,5 +1,6 @@
 import { css, StyleSheet } from "aphrodite";
 import React, { Component } from "react";
+import { NEIGHBOUR_POSITION_OFFSETS } from "../constants/neighbourPositionOffsets";
 import { THEME } from "../constants/theme";
 import { GameState } from "../enums/gameState";
 import { TileType } from "../enums/tileType";
@@ -48,16 +49,6 @@ export class Board extends Component<any, BoardState> {
     const boardCopy = [...board];
 
     possiblePositionsToExpose.add(clickedRowIndex + ";" + clickedColumnIndex);
-    let neighbourPositionOffsets = [
-      [-1, -1],
-      [-1, 0],
-      [-1, 1],
-      [0, -1],
-      [0, 1],
-      [1, -1],
-      [1, 0],
-      [1, 1]
-    ];
 
     let tile = boardCopy[clickedRowIndex][clickedColumnIndex];
     if (!tile.props.hasBomb) {
@@ -66,7 +57,7 @@ export class Board extends Component<any, BoardState> {
         props: { ...tile.props, type: TileType.exposed }
       };
       if (!tile.props.adjacentBombs) {
-        neighbourPositionOffsets.forEach(offset => {
+        NEIGHBOUR_POSITION_OFFSETS.forEach(offset => {
           let neighbourRowIndex = clickedRowIndex + offset[0];
           let neighbourColumnIndex = clickedColumnIndex + offset[1];
           if (
@@ -90,7 +81,7 @@ export class Board extends Component<any, BoardState> {
 
       // add neighbours to possiblePositionsToExpose if they weren't checked before
       if (!tile.props.hasBomb && !tile.props.adjacentBombs) {
-        neighbourPositionOffsets.forEach(offset => {
+        NEIGHBOUR_POSITION_OFFSETS.forEach(offset => {
           let neighbourRowIndex = tileCoords[0] + offset[0];
           let neighbourColumnIndex = tileCoords[1] + offset[1];
           let neighbourPosition =
@@ -126,25 +117,13 @@ export class Board extends Component<any, BoardState> {
   updateAdjacentBombsCount(board: any[][]) {
     board = board.map((row, rowIndex) =>
       row.map((tile, columnIndex) => {
-        let neighbourPositionOffsets = [
-          [-1, -1],
-          [-1, 0],
-          [-1, 1],
-          [0, -1],
-          [0, 1],
-          [1, -1],
-          [1, 0],
-          [1, 1]
-        ];
-
         let adjacentBombs = 0;
 
-        neighbourPositionOffsets.forEach(neighbourPositionOffsets => {
+        NEIGHBOUR_POSITION_OFFSETS.forEach(offset => {
           try {
             adjacentBombs +=
-              board[rowIndex + neighbourPositionOffsets[0]][
-                columnIndex + neighbourPositionOffsets[1]
-              ].props.hasBomb;
+              board[rowIndex + offset[0]][columnIndex + offset[1]].props
+                .hasBomb;
           } catch {}
         });
 
