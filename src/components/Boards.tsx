@@ -43,12 +43,79 @@ export class Board extends Component<any, BoardState> {
 
   uncoverTiles(clickedRowIndex: number, clickedColumnIndex: number) {
     // todo
+    const possiblePositionsToExpose = new Set<string>();
+    const checkedPosition = new Set<string>();
+    const boardCopy = [...this.state.board];
+
+    possiblePositionsToExpose.add(clickedRowIndex + ";" + clickedColumnIndex);
+    let neighbourPositionOffsets = [
+      [-1, -1],
+      [-1, 0],
+      [-1, 1],
+      [0, -1],
+      [0, 1],
+      [1, -1],
+      [1, 0],
+      [1, 1]
+    ];
+
+    neighbourPositionOffsets.forEach(offset => {
+      let neighbourRowIndex = clickedRowIndex + offset[0];
+      let neighbourColumnIndex = clickedColumnIndex + offset[1];
+      if (
+        neighbourRowIndex < this.rowCount &&
+        neighbourColumnIndex < this.columnCount &&
+        neighbourRowIndex >= 0 &&
+        neighbourColumnIndex >= 0
+      ) {
+        possiblePositionsToExpose.add(
+          neighbourRowIndex + ";" + neighbourColumnIndex
+        );
+      }
+    });
+
+    while (possiblePositionsToExpose.size) {
+      console.log([...possiblePositionsToExpose][0]);
+      let tileCoords = [...possiblePositionsToExpose][0].split(";").map(Number);
+      let tile = this.state.board[tileCoords[0]][tileCoords[1]];
+
+      // add neighbours to possiblePositionsToExpose if they weren't checked before
+      if (!tile.hasBomb && !tile.adjacentBombs) {
+        neighbourPositionOffsets.forEach(offset => {
+          let neighbourRowIndex = tileCoords[0] + offset[0];
+          let neighbourColumnIndex = tileCoords[1] + offset[1];
+          let neighbourPosition =
+            neighbourRowIndex + ";" + neighbourColumnIndex;
+          if (
+            neighbourRowIndex < this.rowCount &&
+            neighbourColumnIndex < this.columnCount &&
+            neighbourRowIndex >= 0 &&
+            neighbourColumnIndex >= 0 &&
+            !checkedPosition.has(neighbourPosition)
+          ) {
+            possiblePositionsToExpose.add(neighbourPosition);
+          }
+        });
+      }
+
+      boardCopy[tileCoords[0]][tileCoords[1]] = {
+        ...tile,
+        props: { ...tile.props, type: TileType.exposed }
+      };
+
+      checkedPosition.add([...possiblePositionsToExpose][0]);
+      possiblePositionsToExpose.delete([...possiblePositionsToExpose][0]);
+    }
+
+    this.setState({
+      board: boardCopy
+    });
   }
 
   updateAdjacentBombsCount(board: any[][]) {
     board = board.map((row, rowIndex) =>
       row.map((tile, columnIndex) => {
-        let neighborPositionOffsets = [
+        let neighbourPositionOffsets = [
           [-1, -1],
           [-1, 0],
           [-1, 1],
@@ -61,13 +128,12 @@ export class Board extends Component<any, BoardState> {
 
         let adjacentBombs = 0;
 
-        neighborPositionOffsets.forEach(neighbourPositionOffset => {
+        neighbourPositionOffsets.forEach(neighbourPositionOffsets => {
           try {
-            let hasBomb =
-              board[rowIndex + neighbourPositionOffset[0]][
-                columnIndex + neighbourPositionOffset[1]
+            adjacentBombs +=
+              board[rowIndex + neighbourPositionOffsets[0]][
+                columnIndex + neighbourPositionOffsets[1]
               ].props.hasBomb;
-            adjacentBombs += hasBomb;
           } catch {}
         });
 

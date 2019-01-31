@@ -21,6 +21,11 @@ export class Tile extends Component<TileProps> {
   };
 
   render() {
+    let tileStyles = [styles.tile];
+    if (this.props.type === TileType.exposed && !this.props.hasBomb) {
+      tileStyles.push(styles.uncoveredTile);
+    }
+
     let body: any = "";
     if (this.props.type === TileType.unmarked) {
       body = "";
@@ -37,7 +42,7 @@ export class Tile extends Component<TileProps> {
 
     return (
       <div
-        className={css(styles.tile, styles.uncoveredTile)}
+        className={css(tileStyles)}
         onContextMenu={this.onRightMouseButtonClick}
         onClick={() =>
           this.props.onTileClick(this.props.rowIndex, this.props.columnIndex)
@@ -69,10 +74,11 @@ const styles = StyleSheet.create({
     },
     "text-align": "center",
     "line-height": "20px",
-    "font-family": "impact"
+    "font-family": "impact",
+    background: "rgb(128, 128, 128)"
   },
 
   uncoveredTile: {
-    background: "rgb(192, 192, 192)"
+    background: `rgb(192, 192, 192)`
   }
 });
