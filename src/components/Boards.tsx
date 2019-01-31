@@ -26,14 +26,11 @@ export class Board extends Component<any, BoardState> {
 
   onTileClick = (rowIndex: number, columnIndex: number) => {
     if (this.state.gameState === GameState.unstarted) {
-      this.fillBoard(rowIndex, columnIndex);
-      this.setState({
-        gameState: GameState.started
-      });
-    }
-
-    if (this.state.gameState === GameState.started) {
-      if (this.state.board[rowIndex][columnIndex].hasBomb) {
+      let board = this.getFilledBoard(rowIndex, columnIndex);
+      this.setState({ gameState: GameState.started });
+      this.uncoverTiles(rowIndex, columnIndex, board);
+    } else if (this.state.gameState === GameState.started) {
+      if (this.state.board[rowIndex][columnIndex].props.hasBomb) {
         this.gameOver();
       } else {
         this.uncoverTiles(rowIndex, columnIndex);
@@ -41,11 +38,15 @@ export class Board extends Component<any, BoardState> {
     }
   };
 
-  uncoverTiles(clickedRowIndex: number, clickedColumnIndex: number) {
+  uncoverTiles(
+    clickedRowIndex: number,
+    clickedColumnIndex: number,
+    board: any[][] = this.state.board
+  ) {
     // todo
     const possiblePositionsToExpose = new Set<string>();
-    const checkedPosition = new Set<string>();
-    const boardCopy = [...this.state.board];
+    const checkedPositions = new Set<string>();
+    const boardCopy = [...board];
 
     possiblePositionsToExpose.add(clickedRowIndex + ";" + clickedColumnIndex);
     let neighbourPositionOffsets = [
@@ -59,28 +60,37 @@ export class Board extends Component<any, BoardState> {
       [1, 1]
     ];
 
-    neighbourPositionOffsets.forEach(offset => {
-      let neighbourRowIndex = clickedRowIndex + offset[0];
-      let neighbourColumnIndex = clickedColumnIndex + offset[1];
-      if (
-        neighbourRowIndex < this.rowCount &&
-        neighbourColumnIndex < this.columnCount &&
-        neighbourRowIndex >= 0 &&
-        neighbourColumnIndex >= 0
-      ) {
-        possiblePositionsToExpose.add(
-          neighbourRowIndex + ";" + neighbourColumnIndex
-        );
+    let tile = boardCopy[clickedRowIndex][clickedColumnIndex];
+    if (!tile.props.hasBomb) {
+      boardCopy[clickedRowIndex][clickedColumnIndex] = {
+        ...tile,
+        props: { ...tile.props, type: TileType.exposed }
+      };
+      if (!tile.props.adjacentBombs) {
+        neighbourPositionOffsets.forEach(offset => {
+          let neighbourRowIndex = clickedRowIndex + offset[0];
+          let neighbourColumnIndex = clickedColumnIndex + offset[1];
+          if (
+            neighbourRowIndex < this.rowCount &&
+            neighbourColumnIndex < this.columnCount &&
+            neighbourRowIndex >= 0 &&
+            neighbourColumnIndex >= 0
+          ) {
+            possiblePositionsToExpose.add(
+              neighbourRowIndex + ";" + neighbourColumnIndex
+            );
+          }
+        });
       }
-    });
+    }
 
     while (possiblePositionsToExpose.size) {
       console.log([...possiblePositionsToExpose][0]);
       let tileCoords = [...possiblePositionsToExpose][0].split(";").map(Number);
-      let tile = this.state.board[tileCoords[0]][tileCoords[1]];
+      let tile = boardCopy[tileCoords[0]][tileCoords[1]];
 
       // add neighbours to possiblePositionsToExpose if they weren't checked before
-      if (!tile.hasBomb && !tile.adjacentBombs) {
+      if (!tile.props.hasBomb && !tile.props.adjacentBombs) {
         neighbourPositionOffsets.forEach(offset => {
           let neighbourRowIndex = tileCoords[0] + offset[0];
           let neighbourColumnIndex = tileCoords[1] + offset[1];
@@ -91,19 +101,21 @@ export class Board extends Component<any, BoardState> {
             neighbourColumnIndex < this.columnCount &&
             neighbourRowIndex >= 0 &&
             neighbourColumnIndex >= 0 &&
-            !checkedPosition.has(neighbourPosition)
+            !checkedPositions.has(neighbourPosition)
           ) {
             possiblePositionsToExpose.add(neighbourPosition);
           }
         });
       }
 
-      boardCopy[tileCoords[0]][tileCoords[1]] = {
-        ...tile,
-        props: { ...tile.props, type: TileType.exposed }
-      };
+      if (!tile.props.hasBomb) {
+        boardCopy[tileCoords[0]][tileCoords[1]] = {
+          ...tile,
+          props: { ...tile.props, type: TileType.exposed }
+        };
+      }
 
-      checkedPosition.add([...possiblePositionsToExpose][0]);
+      checkedPositions.add([...possiblePositionsToExpose][0]);
       possiblePositionsToExpose.delete([...possiblePositionsToExpose][0]);
     }
 
@@ -145,10 +157,23 @@ export class Board extends Component<any, BoardState> {
   }
 
   gameOver() {
-    this.setState({
-      gameState: GameState.failed
-    });
-    alert("Game Over");
+    this.setState(
+      {
+        gameState: GameState.failed,
+        board: this.state.board.map(row =>
+          row.map(tile => {
+            if (tile.props.hasBomb) {
+              return {
+                ...tile,
+                props: { ...tile.props, type: TileType.exposed }
+              };
+            }
+            return tile;
+          })
+        )
+      },
+      () => setTimeout(() => alert("Game Over"), 100) // todo - change alert to custom message component
+    );
   }
 
   flagTile = (rowIndex: number, columnIndex: number) => {
@@ -181,7 +206,7 @@ export class Board extends Component<any, BoardState> {
       );
   }
 
-  fillBoard(clickedRowIndex: number, clickedColumnIndex: number) {
+  getFilledBoard(clickedRowIndex: number, clickedColumnIndex: number) {
     let board: any[][] = this.getEmptyBoard(this.rowCount, this.columnCount);
 
     let unplacedBombsLeft = this.initialBombsCount;
@@ -210,7 +235,7 @@ export class Board extends Component<any, BoardState> {
 
     board = this.updateAdjacentBombsCount(board);
 
-    this.setState({ board });
+    return board;
   }
 
   render() {
