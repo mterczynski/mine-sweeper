@@ -26,14 +26,6 @@ export class Board extends Component<any, BoardState> {
   private readonly rowCount = 20;
   private readonly columnCount = 24;
 
-  // private readonly initialBombsCount = 20;
-  // private readonly rowCount = 10;
-  // private readonly columnCount = 12;
-
-  // private readonly initialBombsCount = 4;
-  // private readonly rowCount = 6;
-  // private readonly columnCount = 6;
-
   restartGame = () => {
     this.setState({
       gameState: GameState.unstarted,
