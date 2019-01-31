@@ -33,6 +33,13 @@ export class Board extends Component<any, BoardState> {
   private readonly rowCount = 6;
   private readonly columnCount = 6;
 
+  restartGame = () => {
+    this.setState({
+      gameState: GameState.unstarted,
+      board: this.getEmptyBoard(this.rowCount, this.columnCount)
+    });
+  };
+
   onTileClick = (rowIndex: number, columnIndex: number) => {
     if (this.state.gameState === GameState.unstarted) {
       let board = this.getFilledBoard(rowIndex, columnIndex);
@@ -91,7 +98,6 @@ export class Board extends Component<any, BoardState> {
     }
 
     while (possiblePositionsToExpose.size) {
-      console.log([...possiblePositionsToExpose][0]);
       let tileCoords = [...possiblePositionsToExpose][0].split(";").map(Number);
       let tile = boardCopy[tileCoords[0]][tileCoords[1]];
 
@@ -262,19 +268,35 @@ export class Board extends Component<any, BoardState> {
   render() {
     return (
       <div>
-        {this.state.board.map((row, rowIndex) => {
-          return (
-            <div className={css(styles.row)} key={rowIndex}>
-              {row}
-            </div>
-          );
-        })}
+        <button
+          className={css(styles.restartGameButton)}
+          onClick={this.restartGame}
+        >
+          Restart
+        </button>
+        <div>
+          {this.state.board.map((row, rowIndex) => {
+            return (
+              <div className={css(styles.row)} key={rowIndex}>
+                {row}
+              </div>
+            );
+          })}
+        </div>
       </div>
     );
   }
 }
 
 const styles = StyleSheet.create({
+  restartGameButton: {
+    height: "20px",
+    width: "40px",
+    background: `red`,
+    color: "white",
+    "font-family": "Impact"
+  },
+
   row: {
     display: "flex",
     ":last-child > *": {

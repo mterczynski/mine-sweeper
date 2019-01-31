@@ -1,7 +1,7 @@
 import { css, StyleSheet } from "aphrodite";
 import React, { Component } from "react";
 import { THEME } from "../constants/theme";
-import { Board } from "./Boards";
+import { Board } from "./Board";
 
 export class App extends Component {
   render() {
