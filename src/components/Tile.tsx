@@ -20,13 +20,9 @@ export class Tile extends Component<TileProps> {
     this.props.flagTile(this.props.rowIndex, this.props.columnIndex);
   };
 
-  render() {
-    let tileStyles = [styles.tile];
-    if (this.props.type === TileType.exposed && !this.props.hasBomb) {
-      tileStyles.push(styles.uncoveredTile);
-    }
-
+  getInnerContent() {
     let body: any = "";
+
     if (this.props.type === TileType.unmarked) {
       body = "";
     } else if (this.props.type === TileType.flagged) {
@@ -40,6 +36,15 @@ export class Tile extends Component<TileProps> {
       }
     }
 
+    return body;
+  }
+
+  render() {
+    let tileStyles = [styles.tile];
+    if (this.props.type === TileType.exposed && !this.props.hasBomb) {
+      tileStyles.push(styles.uncoveredTile);
+    }
+
     return (
       <div
         className={css(tileStyles)}
@@ -48,7 +53,7 @@ export class Tile extends Component<TileProps> {
           this.props.onTileClick(this.props.rowIndex, this.props.columnIndex)
         }
       >
-        {body}
+        {this.getInnerContent()}
       </div>
     );
   }
