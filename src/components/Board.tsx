@@ -55,13 +55,12 @@ export class Board extends Component<any, BoardState> {
     );
   }
 
-  uncoverTiles(
+  getPossiblePositionsToExpose(
     clickedRowIndex: number,
     clickedColumnIndex: number,
     board: any[][] = this.state.board
   ) {
     const possiblePositionsToExpose = new Set<string>();
-    const checkedPositions = new Set<string>();
     let boardCopy = [...board];
 
     possiblePositionsToExpose.add(clickedRowIndex + ";" + clickedColumnIndex);
@@ -89,6 +88,23 @@ export class Board extends Component<any, BoardState> {
         });
       }
     }
+
+    return possiblePositionsToExpose;
+  }
+
+  uncoverTiles(
+    clickedRowIndex: number,
+    clickedColumnIndex: number,
+    board: any[][] = this.state.board
+  ) {
+    const possiblePositionsToExpose = this.getPossiblePositionsToExpose(
+      clickedRowIndex,
+      clickedColumnIndex,
+      board
+    );
+
+    const checkedPositions = new Set<string>();
+    let boardCopy = [...board];
 
     while (possiblePositionsToExpose.size) {
       let tileCoords = [...possiblePositionsToExpose][0].split(";").map(Number);
@@ -139,6 +155,7 @@ export class Board extends Component<any, BoardState> {
       );
       Popup.alert("You won!");
     }
+
     this.setState({
       board: boardCopy
     });
