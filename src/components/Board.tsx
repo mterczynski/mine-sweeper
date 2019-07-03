@@ -229,7 +229,7 @@ export class Board extends Component<any, BoardState> {
 
     let unplacedBombsLeft = this.initialBombsCount;
 
-    while (unplacedBombsLeft) {
+    for (let i = 0; i< unplacedBombsLeft; i++) {
       let nextColumnIndex = Math.ceil(Math.random() * this.columnCount) - 1;
       let nextRowIndex = Math.ceil(Math.random() * this.rowCount) - 1;
       let isNewTileSameAsClickedTile =
@@ -247,7 +247,6 @@ export class Board extends Component<any, BoardState> {
         };
 
         board[nextRowIndex][nextColumnIndex] = newField;
-        unplacedBombsLeft--;
       }
     }
 
