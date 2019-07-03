@@ -145,21 +145,19 @@ export class Board extends Component<any, BoardState> {
   }
 
   updateAdjacentBombsCount(board: any[][]) {
-    board = board.map((row, rowIndex) =>
-      row.map((tile, columnIndex) => {
+    board = board.map((row, rowIndex) => {
+      return row.map((tile, columnIndex) => {
         let adjacentBombs = 0;
 
         NEIGHBOUR_POSITION_OFFSETS.forEach(offset => {
           try {
-            adjacentBombs +=
-              board[rowIndex + offset[0]][columnIndex + offset[1]].props
-                .hasBomb;
+            adjacentBombs += board[rowIndex + offset[0]][columnIndex + offset[1]].props.hasBomb;
           } catch {}
         });
 
         return { ...tile, props: { ...tile.props, adjacentBombs } };
       })
-    );
+    });
 
     return board;
   }
@@ -175,10 +173,12 @@ export class Board extends Component<any, BoardState> {
               props: { ...tile.props, type: TileType.exposed }
             };
           }
+          
           return tile;
         })
       )
     });
+
     Popup.alert("Game over!");
   }
 
