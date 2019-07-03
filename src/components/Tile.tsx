@@ -1,6 +1,6 @@
 import { css, StyleSheet } from "aphrodite";
 import React, { Component } from "react";
-import { THEME } from "../constants/theme";
+import { THEME } from "../constants";
 import { TileType } from "../enums/tileType";
 
 export type TileProps = {

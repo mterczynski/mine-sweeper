@@ -1,8 +1,7 @@
 import { css, StyleSheet } from "aphrodite";
 import React, { Component } from "react";
 import Popup from "react-popup";
-import { NEIGHBOUR_POSITION_OFFSETS } from "../constants/neighbourPositionOffsets";
-import { THEME } from "../constants/theme";
+import { NEIGHBOUR_POSITION_OFFSETS, THEME } from "../constants";
 import { GameState } from "../enums/gameState";
 import { TileType } from "../enums/tileType";
 import { Tile } from "./Tile";
