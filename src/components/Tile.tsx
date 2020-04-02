@@ -11,24 +11,24 @@ export type TileProps = {
   columnIndex: number;
 
   // Callbacks:
-  flagTile: any;
-  onTileClick: any;
+  flagTile: (rowIndex: number, columnIndex: number) => void;
+  onTileClick: (rowIndex: number, columnIndex: number) => void;
 };
 export class Tile extends Component<TileProps> {
-  onRightMouseButtonClick = (event: any) => {
+  onRightMouseButtonClick = (event: React.MouseEvent) => {
     event.preventDefault();
     this.props.flagTile(this.props.rowIndex, this.props.columnIndex);
   };
 
   getInnerContent() {
-    let body: any = "";
+    let body: JSX.Element | string = "";
 
     if (this.props.type === TileType.unmarked) {
       body = "";
     } else if (this.props.type === TileType.flagged) {
       body = <img src="assets/flag.svg" alt="" className={css(styles.icon)} />;
     } else if (this.props.type === TileType.exposed) {
-      body = this.props.adjacentBombs || "";
+      body = this.props.adjacentBombs?.toString() || "";
       if (this.props.hasBomb) {
         body = (
           <img src="assets/mine.png" alt="" className={css(styles.icon)} />
